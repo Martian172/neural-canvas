@@ -29,6 +29,13 @@ from typing import Optional
 
 import click
 
+# Windows consoles default to a legacy codepage (e.g. cp1252) that cannot
+# encode the emoji used in CLI output; force UTF-8 with replacement so
+# output never crashes regardless of terminal settings.
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 STYLES_EMOJI = {
     "cyberpunk": "🌆",
     "watercolor": "🎨",
