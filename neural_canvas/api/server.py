@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from PIL import Image
 from pydantic import BaseModel, Field, field_validator
 
@@ -272,6 +272,217 @@ _FILTER_MAP = {
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
+_HOME_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Neural Canvas — AI Art Generation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080812;--s1:#0f0f20;--s2:#161628;--border:#252545;--p:#8b5cf6;--p2:#a78bfa;--cyan:#22d3ee;--pink:#ec4899;--green:#10b981;--text:#e2e8f0;--muted:#64748b}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+/* Animated bg */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(139,92,246,.15) 0,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(34,211,238,.1) 0,transparent 60%);pointer-events:none}
+nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;background:rgba(15,15,32,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-weight:900;font-size:1.1rem;background:linear-gradient(135deg,var(--p2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:1rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:.35rem .75rem;border-radius:8px;transition:.2s}
+.nav-links a:hover{background:var(--s2);color:var(--text)}
+.btn{padding:.5rem 1.2rem;border-radius:9px;border:none;cursor:pointer;font-weight:600;font-size:.85rem;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--p),var(--pink));color:#fff;box-shadow:0 0 20px rgba(139,92,246,.3)}
+.btn-primary:hover{opacity:.85;transform:scale(1.04)}
+.btn-ghost{background:var(--s2);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--p2);color:var(--p2)}
+/* Hero */
+.hero{text-align:center;padding:5rem 2rem 3rem}
+.badge{display:inline-block;padding:.3rem .9rem;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);border-radius:999px;font-size:.75rem;color:var(--p2);margin-bottom:1.5rem;font-weight:600;letter-spacing:.05em}
+h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.1;margin-bottom:1.2rem}
+h1 span{background:linear-gradient(135deg,var(--p2),var(--cyan),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--muted);font-size:1.15rem;max-width:580px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+/* Styles grid */
+.section{padding:4rem 2rem;max-width:1200px;margin:0 auto}
+.section-title{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+.section-sub{color:var(--muted);margin-bottom:2rem;font-size:.9rem}
+.styles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+.style-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.2rem;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.style-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--p),var(--cyan));opacity:0;transition:.25s}
+.style-card:hover{border-color:var(--p2);transform:translateY(-4px)}
+.style-card:hover::before{opacity:.06}
+.style-card.active{border-color:var(--p);box-shadow:0 0 0 1px var(--p),0 8px 30px rgba(139,92,246,.2)}
+.style-icon{font-size:1.8rem;margin-bottom:.6rem}
+.style-name{font-weight:700;font-size:.9rem;margin-bottom:.25rem;text-transform:capitalize}
+.style-desc{font-size:.72rem;color:var(--muted);line-height:1.5}
+/* Generator */
+.gen-panel{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:2rem;margin-top:3rem}
+.gen-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+@media(max-width:700px){.gen-grid{grid-template-columns:1fr}}
+.field-label{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+.field-row{margin-bottom:1.2rem}
+input[type=range]{width:100%;accent-color:var(--p);cursor:pointer}
+.range-val{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--p2)}
+.output-area{display:flex;align-items:center;justify-content:center;background:var(--s2);border:1px solid var(--border);border-radius:12px;min-height:340px;position:relative;overflow:hidden}
+.output-area img{max-width:100%;max-height:400px;border-radius:10px;display:block}
+.placeholder-text{color:var(--muted);font-size:.9rem;text-align:center;padding:2rem}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--p2);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-btn{width:100%;padding:.8rem;border-radius:11px;background:linear-gradient(135deg,var(--p),var(--pink));border:none;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;margin-top:1rem;transition:.2s;box-shadow:0 0 25px rgba(139,92,246,.25)}
+.gen-btn:hover{opacity:.88;transform:scale(1.02)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+/* Endpoint list */
+.ep-list{display:flex;flex-direction:column;gap:.75rem}
+.ep{display:flex;align-items:center;gap:.8rem;background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:.75rem 1.1rem}
+.method{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;padding:.2rem .55rem;border-radius:5px;min-width:46px;text-align:center}
+.GET{background:rgba(16,185,129,.15);color:var(--green)}
+.POST{background:rgba(139,92,246,.15);color:var(--p2)}
+.ep-path{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--cyan)}
+.ep-desc{font-size:.78rem;color:var(--muted);margin-left:auto}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:4rem}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">🎨 Neural Canvas</div>
+  <div class="nav-links">
+    <a href="/docs">API Docs</a>
+    <a href="/styles">Styles JSON</a>
+    <a href="/health">Health</a>
+  </div>
+  <a href="/docs" class="btn btn-primary">Try API</a>
+</nav>
+
+<div class="hero">
+  <div class="badge">v0.1.0 — Open Source AI Art</div>
+  <h1>Transform Images with<br/><span>AI-Powered Style</span></h1>
+  <p class="hero-sub">Apply stunning artistic styles, glitch effects, neon glows, watercolor washes & more — all via a simple REST API or Python SDK.</p>
+  <div class="hero-cta">
+    <button class="btn btn-primary" onclick="document.getElementById('generator').scrollIntoView({behavior:'smooth'})">Generate Art</button>
+    <a href="/docs" class="btn btn-ghost">API Explorer</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Available Styles</div>
+  <div class="section-sub">Choose a preset — each applies real image transformations via numpy & Pillow.</div>
+  <div class="styles-grid" id="styles-grid">Loading styles...</div>
+</div>
+
+<div class="section" id="generator">
+  <div class="section-title">Generate Art</div>
+  <div class="section-sub">Pick a style above, adjust parameters, and click Generate.</div>
+  <div class="gen-panel">
+    <div class="gen-grid">
+      <div>
+        <div class="field-row">
+          <div class="field-label">Selected Style</div>
+          <div id="selected-style-name" style="font-weight:700;color:var(--p2);font-size:1rem">cyberpunk</div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Width <span class="range-val" id="w-val">512</span>px</div>
+          <input type="range" min="128" max="1024" step="64" value="512" oninput="document.getElementById('w-val').textContent=this.value" id="inp-w"/>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Height <span class="range-val" id="h-val">512</span>px</div>
+          <input type="range" min="128" max="1024" step="64" value="512" oninput="document.getElementById('h-val').textContent=this.value" id="inp-h"/>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Intensity <span class="range-val" id="int-val">0.8</span></div>
+          <input type="range" min="0.1" max="2.0" step="0.1" value="0.8" oninput="document.getElementById('int-val').textContent=parseFloat(this.value).toFixed(1)" id="inp-int"/>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Seed</div>
+          <input type="range" min="1" max="999" step="1" value="42" oninput="document.getElementById('seed-val').textContent=this.value" id="inp-seed"/>
+          <span class="range-val" id="seed-val">42</span>
+        </div>
+        <button class="gen-btn" id="gen-btn" onclick="generateArt()">Generate Art</button>
+      </div>
+      <div>
+        <div class="field-label" style="margin-bottom:.75rem">Output</div>
+        <div class="output-area" id="output-area">
+          <div class="placeholder-text">Your generated art will appear here.<br/>Select a style and click Generate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">REST API Endpoints</div>
+  <div class="section-sub">Full OpenAPI docs at <a href="/docs" style="color:var(--p2)">/docs</a></div>
+  <div class="ep-list">
+    <div class="ep"><span class="method GET">GET</span><span class="ep-path">/health</span><span class="ep-desc">Health check & version</span></div>
+    <div class="ep"><span class="method GET">GET</span><span class="ep-path">/styles</span><span class="ep-desc">List all art style presets</span></div>
+    <div class="ep"><span class="method POST">POST</span><span class="ep-path">/generate</span><span class="ep-desc">Generate art from style + params (returns base64 PNG)</span></div>
+    <div class="ep"><span class="method POST">POST</span><span class="ep-path">/transform</span><span class="ep-desc">Apply filter to an uploaded image</span></div>
+  </div>
+</div>
+
+<footer>Neural Canvas v0.1.0 · MIT License · <a href="https://github.com/Martian172/neural-canvas" style="color:var(--p2)">github.com/Martian172/neural-canvas</a></footer>
+
+<script>
+let selectedStyle = 'cyberpunk';
+
+async function loadStyles() {
+  const grid = document.getElementById('styles-grid');
+  try {
+    const r = await fetch('/styles');
+    const data = await r.json();
+    const icons = {cyberpunk:'⚡',watercolor:'💧',oil_painting:'🎨',sketch:'✏️',neon:'🌟',glitch:'👾',vintage:'📷',abstract:'🌀'};
+    grid.innerHTML = data.styles.map(s => `
+      <div class="style-card${s.name===selectedStyle?' active':''}" onclick="selectStyle('${s.name}',this)">
+        <div class="style-icon">${icons[s.name]||'🖼️'}</div>
+        <div class="style-name">${s.name.replace(/_/g,' ')}</div>
+        <div class="style-desc">${s.description}</div>
+      </div>`).join('');
+  } catch(e) { grid.innerHTML = '<p style="color:var(--muted)">Could not load styles.</p>'; }
+}
+
+function selectStyle(name, el) {
+  selectedStyle = name;
+  document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('selected-style-name').textContent = name.replace(/_/g,' ');
+}
+
+async function generateArt() {
+  const btn = document.getElementById('gen-btn');
+  const out = document.getElementById('output-area');
+  btn.disabled = true;
+  out.innerHTML = '<div><div class="spinner"></div><p style="color:var(--muted);font-size:.85rem">Generating...</p></div>';
+  try {
+    const payload = {
+      style: selectedStyle,
+      width: parseInt(document.getElementById('inp-w').value),
+      height: parseInt(document.getElementById('inp-h').value),
+      intensity: parseFloat(document.getElementById('inp-int').value),
+      seed: parseInt(document.getElementById('inp-seed').value),
+      output_format: 'PNG'
+    };
+    const r = await fetch('/generate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data = await r.json();
+    if (data.image_base64) {
+      out.innerHTML = `<img src="data:image/png;base64,${data.image_base64}" alt="Generated ${selectedStyle} art"/>`;
+    } else {
+      out.innerHTML = '<div class="placeholder-text" style="color:#ef4444">Generation failed: ' + (data.detail||'unknown error') + '</div>';
+    }
+  } catch(e) {
+    out.innerHTML = '<div class="placeholder-text" style="color:#ef4444">Request failed: ' + e.message + '</div>';
+  }
+  btn.disabled = false;
+}
+
+loadStyles();
+</script>
+</body>
+</html>"""
+
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+async def homepage():
+    """Serve the Neural Canvas web UI."""
+    return HTMLResponse(_HOME_HTML)
 
 
 @app.get(
