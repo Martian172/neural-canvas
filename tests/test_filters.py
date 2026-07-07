@@ -20,8 +20,8 @@ class TestGlitchFilter:
         assert isinstance(result, Image.Image)
         assert result.size == sample_image.size
 
-    def test_apply_with_intensity(self, sample_image):
-        f = GlitchFilter(intensity=0.8)
+    def test_apply_with_strength(self, sample_image):
+        f = GlitchFilter(strength=0.8)
         result = f.apply(sample_image)
         assert isinstance(result, Image.Image)
 
@@ -57,7 +57,7 @@ class TestSketchFilter:
         assert isinstance(result, Image.Image)
         assert result.size == sample_image.size
 
-    def test_apply_colored(self, sample_image):
-        f = SketchFilter(colored=True)
+    def test_apply_with_tint(self, sample_image):
+        f = SketchFilter(color_tint=(200, 180, 150))
         result = f.apply(sample_image)
         assert isinstance(result, Image.Image)
