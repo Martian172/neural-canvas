@@ -362,7 +362,7 @@ def calculate_image_stats(image: Image.Image) -> Dict[str, float]:
     from PIL import ImageFilter as _IF
 
     grey = img_rgb.convert("L")
-    lap = grey.filter(_IF.Kernel(size=3, kernel=(-1, -1, -1, -1, 8, -1, -1, -1, -1), scale=1))
+    lap = grey.filter(_IF.Kernel(size=(3, 3), kernel=(-1, -1, -1, -1, 8, -1, -1, -1, -1), scale=1))
     sharpness = float(np.array(lap, dtype=np.float32).var())
 
     return {
