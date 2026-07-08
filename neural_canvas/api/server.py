@@ -684,3 +684,16 @@ async def transform(
         elapsed_ms=elapsed_ms,
         stats=stats,
     )
+
+
+if __name__ == "__main__":
+    # Allows launching the API directly (e.g. VS Code Run button):
+    #   python neural_canvas/api/server.py
+    import os
+
+    import uvicorn
+
+    host = os.environ.get("NEURAL_CANVAS_HOST", "127.0.0.1")
+    port = int(os.environ.get("NEURAL_CANVAS_PORT", "8002"))
+    print(f"Neural Canvas API + web UI: http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port)
