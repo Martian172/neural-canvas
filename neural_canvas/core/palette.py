@@ -28,7 +28,6 @@ Example::
 from __future__ import annotations
 
 import colorsys
-import math
 from typing import List, Optional, Tuple
 
 import numpy as np

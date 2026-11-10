@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse
 from PIL import Image
 from pydantic import BaseModel, Field, field_validator
 

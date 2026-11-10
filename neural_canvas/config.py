@@ -124,7 +124,7 @@ class NeuralCanvasConfig:
 # ---------------------------------------------------------------------------
 
 
-def load_config(env_file: Optional[str] = None) -> NeuralCanvasConfig:
+def load_config(env_file: Optional[str] = None) -> NeuralCanvasConfig:  # noqa: C901
     """Load a :class:`NeuralCanvasConfig` from environment variables.
 
     If a ``.env`` file path is provided (or ``.env`` exists in the current

@@ -14,7 +14,7 @@ setup(
     description="AI-Powered Artistic Image Generation Pipeline",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/neural-canvas",
+    url="https://github.com/Martian172/neural-canvas",
     author="Neural Canvas Team",
     author_email="hello@neural-canvas.ai",
     classifiers=[
@@ -71,8 +71,8 @@ setup(
         ],
     },
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/neural-canvas/issues",
-        "Source": "https://github.com/yourusername/neural-canvas",
+        "Bug Reports": "https://github.com/Martian172/neural-canvas/issues",
+        "Source": "https://github.com/Martian172/neural-canvas",
         "Documentation": "https://neural-canvas.readthedocs.io",
     },
     include_package_data=True,

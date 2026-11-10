@@ -4,8 +4,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-orange.svg)](https://pypi.org/project/neural-canvas/)
-[![CI](https://img.shields.io/badge/CI-passing-brightgreen.svg)](https://github.com/yourusername/neural-canvas/actions)
+[![CI](https://github.com/Martian172/neural-canvas/actions/workflows/ci.yml/badge.svg)](https://github.com/Martian172/neural-canvas/actions/workflows/ci.yml)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -39,13 +38,13 @@
 ### Installation
 
 ```bash
-pip install neural-canvas
+pip install "neural-canvas @ git+https://github.com/Martian172/neural-canvas.git"
 ```
 
-Or install from source:
+Or install from source for development:
 
 ```bash
-git clone https://github.com/yourusername/neural-canvas.git
+git clone https://github.com/Martian172/neural-canvas.git
 cd neural-canvas
 pip install -e ".[dev]"
 ```

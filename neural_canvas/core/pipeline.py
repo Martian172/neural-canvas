@@ -17,7 +17,6 @@ Example::
 
 from __future__ import annotations
 
-import os
 import time
 import random
 import logging
@@ -27,9 +26,9 @@ from pathlib import Path
 from typing import Optional, Union, List, Dict, Any, Callable
 
 import numpy as np
-from PIL import Image, ImageFilter, ImageEnhance, ImageOps
+from PIL import Image, ImageEnhance
 
-from neural_canvas.config import NeuralCanvasConfig, STYLE_PRESETS
+from neural_canvas.config import NeuralCanvasConfig
 from neural_canvas.core.filters import (
     BaseFilter,
     GlitchFilter,
@@ -38,7 +37,7 @@ from neural_canvas.core.filters import (
     WatercolorFilter,
     SketchFilter,
 )
-from neural_canvas.utils.image_utils import resize_with_aspect_ratio, convert_format
+from neural_canvas.utils.image_utils import resize_with_aspect_ratio
 
 logger = logging.getLogger(__name__)
 

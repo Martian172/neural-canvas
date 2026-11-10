@@ -22,11 +22,10 @@ Available filters:
 from __future__ import annotations
 
 import abc
-import random
-from typing import Optional, Sequence
+from typing import Optional
 
 import numpy as np
-from PIL import Image, ImageFilter, ImageEnhance, ImageOps, ImageDraw
+from PIL import Image, ImageFilter, ImageEnhance, ImageOps
 
 
 # ---------------------------------------------------------------------------
@@ -375,7 +374,6 @@ class WatercolorFilter(BaseFilter):
             Watercolor-styled PIL image.
         """
         img = image.convert("RGB")
-        arr = np.array(img, dtype=np.float32)
 
         # --- Multi-pass bilateral-like smoothing using Pillow ---
         smooth = img

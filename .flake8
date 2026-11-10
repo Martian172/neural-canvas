@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 120
+# server.py embeds the single-page web UI as an HTML string
+per-file-ignores =
+    neural_canvas/api/server.py:E501

@@ -14,14 +14,12 @@ Functions:
 
 from __future__ import annotations
 
-import io
 import math
-import os
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 
 
 # ---------------------------------------------------------------------------
